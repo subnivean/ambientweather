@@ -1,6 +1,9 @@
 import os
-import sqlite3
 from pathlib import Path
+import sqlite3
+import sys
+import time
+
 import pandas as pd
 
 import awdtypes
@@ -14,7 +17,22 @@ from ambient_api.ambientapi import AmbientAPI
 DBFILE = Path('../data/ambientweather.db')
 
 api = AmbientAPI()
-ws = api.get_devices()[0]
+
+n = 0
+while n < 5:
+    try:
+        ws = api.get_devices()[0]
+        break
+    except IndexError:
+        # Sleep a little and try again
+        time.sleep(1)
+        n += 1
+        # print("Trying again")
+        continue
+else:
+    print("System unreachable.")
+    sys.exit()
+
 wsdata = {k: [v] for k, v in ws.last_data.items()}
 wsdata.pop('lastRain')  # Don't care
 

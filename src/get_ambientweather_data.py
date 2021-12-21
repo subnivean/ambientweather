@@ -24,11 +24,12 @@ while n < 5:
         ws = api.get_devices()[0]
         break
     except IndexError:
-        # Sleep a little and try again
-        time.sleep(1)
-        n += 1
-        # print("Trying again")
-        continue
+        pass
+
+    # Sleep a little and try again
+    time.sleep(1)
+    n += 1
+    # print("Trying again")
 else:
     print("System unreachable.")
     sys.exit()

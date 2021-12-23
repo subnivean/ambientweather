@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from requests.exceptions import ConnectionError
 import sqlite3
 import sys
 import time
@@ -23,11 +24,11 @@ while n < 5:
     try:
         ws = api.get_devices()[0]
         break
-    except IndexError:
+    except (IndexError, ConnectionError):
         pass
 
     # Sleep a little and try again
-    time.sleep(1)
+    time.sleep(5)
     n += 1
     # print("Trying again")
 else:

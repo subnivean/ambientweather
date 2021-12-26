@@ -38,6 +38,11 @@ else:
 wsdata = {k: [v] for k, v in ws.last_data.items()}
 wsdata.pop('lastRain')  # Don't care
 
+dtypes = list(awdtypes.DTYPES)
+for dt in dtypes:
+    if dt not in wsdata:
+        awdtypes.DTYPES.pop(dt)
+
 df = pd.DataFrame.from_dict(wsdata).astype(awdtypes.DTYPES)
 df['date'] = pd.to_datetime(df['date'])
 dftstamp = df['dateutc'].values[0]

@@ -10,6 +10,9 @@ import pandas as pd
 import awdtypes
 import awsecrets
 
+# DEVICENUM = 0  # Old station
+DEVICENUM = 1  # New station
+
 # Need to run this *before* importing AmbientAPI
 os.environ.update(**awsecrets.env)
 
@@ -22,7 +25,7 @@ api = AmbientAPI()
 n = 0
 while n < 5:
     try:
-        ws = api.get_devices()[0]
+        ws = api.get_devices()[DEVICENUM]
         break
     except (IndexError, ConnectionError):
         pass
@@ -35,15 +38,17 @@ else:
     print("System unreachable.")
     sys.exit()
 
-wsdata = {k: [v] for k, v in ws.last_data.items()}
+lastdata = ws.last_data
+dtypes = awdtypes.get_awdtypes(lastdata)
+
+wsdata = {k: [v] for k, v in lastdata.items()}
 wsdata.pop('lastRain')  # Don't care
 
-dtypes = list(awdtypes.DTYPES)
-for dt in dtypes:
+for dt in list(dtypes):
     if dt not in wsdata:
-        awdtypes.DTYPES.pop(dt)
+        dtypes.pop(dt)
 
-df = pd.DataFrame.from_dict(wsdata).astype(awdtypes.DTYPES)
+df = pd.DataFrame.from_dict(wsdata).astype(dtypes)
 df['date'] = pd.to_datetime(df['date'])
 dftstamp = df['dateutc'].values[0]
 

@@ -1,40 +1,24 @@
-# Used by `get_ambientweather_data.py`
-DTYPES = dict(
-    dateutc=float,
-    baromrelin=float,
-    baromabsin=float,
-    winddir=float,
-    windspeedmph=float,
-    windgustmph=float,
-    maxdailygust=float,
-    hourlyrainin=float,
-    dailyrainin=float,
-    weeklyrainin=float,
-    monthlyrainin=float,
-    yearlyrainin=float,
-    uv=float,
-    tempf=float,
-    humidity=float,
-    battout=float,
-    temp1f=float,
-    humidity1=float,
-    batt1=float,
-    temp2f=float,
-    humidity2=float,
-    batt2=float,
-    temp3f=float,
-    batt3=float,
-    temp4f=float,
-    humidity4=float,
-    batt4=float,
-    feelsLike=float,
-    dewPoint=float,
-    feelsLike1=float,
-    dewPoint1=float,
-    feelsLike2=float,
-    dewPoint2=float,
-    feelsLike4=float,
-    dewPoint4=float,
-    tz=str,
-    date=str,
-)
+def get_awdtypes(lastdata):
+    """Creates a mapping of AmbientWeather station properties to their data types.
+
+    Used for creating a Sqlite table to store the data.
+
+    Args:
+        lastdata: Output of `AmbientAPI().get_devices()[<AWDeviceNumber>].last_data`.
+
+    Returns:
+        Dictionary mapping AmbientWeather station properties to their data types.
+    """
+
+    STRFIELDS = ('lastRain', 'tz', 'date')
+
+    dtypes = eval(
+        'dict(' +
+        ',\n'.join(
+            [f"{key}={'str' if key in STRFIELDS else 'float'}"
+             for key in lastdata.keys()]
+            )
+        + ')'
+    )
+
+    return dtypes

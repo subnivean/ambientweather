@@ -8,10 +8,10 @@ import time
 import pandas as pd
 
 import awdtypes
-import mysecrets
+import awsecrets
 
 # Need to run this *before* importing AmbientAPI
-os.environ.update(**mysecrets.env)
+os.environ.update(**awsecrets.env)
 
 from ambient_api.ambientapi import AmbientAPI
 

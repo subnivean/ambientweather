@@ -4,10 +4,10 @@ SCRIPT_PATH=$(dirname $(realpath -s $0))
 
 docker run --rm \
    -v $SCRIPT_PATH/data:/data \
-   ambientweather-2 \
+   ambientweather \
    sqlite3 -readonly -box ../data/ambientweather.db \
-     "select 
-         date,tempf,temp1f,temp4f 
+     "select
+         date,tempf,temp1f,temp4f
       from
          dbtable
       where

@@ -1,3 +1,4 @@
-mysecrets.py
+awsecrets.py
 __pycache__
 .devcontainer/
+*.swp

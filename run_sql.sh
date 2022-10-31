@@ -9,13 +9,13 @@ docker run --rm \
      "select
          date,tempf,tempinf
       from
-         dbtable
+         dbtable1
       where
          dateutc > (
                select
                  dateutc
                from
-                 dbtable
+                 dbtable1
                order by
                  dateutc
                desc limit 1)

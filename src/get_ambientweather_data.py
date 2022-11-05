@@ -60,8 +60,17 @@ def add_latest_data_to_db(devicenum, device, conn):
         lasttstamp = -999
 
     if dftstamp != lasttstamp:
-        df.to_sql(f"dbtable{devicenum}", conn,
-                  if_exists='append', index=False)
+        try:
+            df.to_sql(f"dbtable{devicenum}", conn,
+                      if_exists='append', index=False)
+        except:
+            # Except what?
+            # The old weather station is sometimes passing
+            # fields from the (disconnected) remote outdoor
+            # unit that didn't exist when the table was created!
+            # Update: Looks like the solar panel was still
+            # providing some power. I've killed it.
+            pass
 
     cur.close()
 

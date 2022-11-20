@@ -15,7 +15,7 @@ os.environ.update(**awsecrets.env)
 
 from ambient_api.ambientapi import AmbientAPI
 
-DBFILE = Path('/data/ambientweather.db')
+DBFILE = Path('/data/ambientweather.sqlite')
 
 def get_devices(api):
     n = 0

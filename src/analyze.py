@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 
-awconn = sqlite3.connect("../data/ambientweather.db")
+awconn = sqlite3.connect("../data/ambientweather.sqlite")
 AWSQL = "select date, avg(tempf) from dbtable where strftime('%H', date, '-5 hours') < '06' group by date(date, '-5 hours');"
 awdf = pd.read_sql(AWSQL, awconn)
 

@@ -46,7 +46,7 @@ dldf['dateutc'] = (dldf['date'] - pd.Timestamp('1970-01-01', tz='UTC')).dt.total
 dldf = dldf.resample('1min', on='date').mean().interpolate().reset_index()
 dldf['tz'] = 'America/New_York'
 
-awconn = sqlite3.connect("/data/ambientweather.db")
+awconn = sqlite3.connect("/data/ambientweather.sqlite")
 AWSQL = "select * from dbtable;"
 awdf = pd.read_sql(AWSQL, awconn)
 awdf['date'] = pd.to_datetime(awdf['date'])

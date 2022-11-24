@@ -15,7 +15,8 @@ os.environ.update(**awsecrets.env)
 
 from ambient_api.ambientapi import AmbientAPI
 
-DBFILE = Path('/data/ambientweather.sqlite')
+DBFILE = Path("/data/ambientweather.sqlite")
+
 
 def get_devices(api):
     n = 0
@@ -40,29 +41,29 @@ def add_latest_data_to_db(devicenum, device, conn):
     dtypes = awdtypes.get_awdtypes(lastdata)
 
     wsdata = {k: [v] for k, v in lastdata.items()}
-    wsdata.pop('lastRain')  # Don't care
+    wsdata.pop("lastRain")  # Don't care
 
     for dt in list(dtypes):
         if dt not in wsdata:
             dtypes.pop(dt)
 
     df = pd.DataFrame.from_dict(wsdata).astype(dtypes)
-    df['date'] = pd.to_datetime(df['date'])
-    dftstamp = df['dateutc'].values[0]
+    df["date"] = pd.to_datetime(df["date"])
+    dftstamp = df["dateutc"].values[0]
 
     cur = conn.cursor()
 
     try:
-        cur.execute(f"select dateutc from dbtable{devicenum} "
-                    "order by dateutc desc limit 1")
+        cur.execute(
+            f"select dateutc from dbtable{devicenum} " "order by dateutc desc limit 1"
+        )
         lasttstamp = cur.fetchone()[0]
     except sqlite3.OperationalError:
         lasttstamp = -999
 
     if dftstamp != lasttstamp:
         try:
-            df.to_sql(f"dbtable{devicenum}", conn,
-                      if_exists='append', index=False)
+            df.to_sql(f"dbtable{devicenum}", conn, if_exists="append", index=False)
         except:
             # Except what?
             # The old weather station is sometimes passing
@@ -73,6 +74,7 @@ def add_latest_data_to_db(devicenum, device, conn):
             pass
 
     cur.close()
+
 
 ##############################################################################
 ##############################################################################

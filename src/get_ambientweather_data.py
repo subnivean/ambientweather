@@ -19,7 +19,7 @@ DBFILE = Path('/data/ambientweather.sqlite')
 
 def get_devices(api):
     n = 0
-    while (n := n + 1) <= 5:
+    while (n := n + 1) <= 10:
         try:
             alldevices = api.get_devices()
             break

@@ -27,7 +27,7 @@ def get_devices(api):
         except (IndexError, ConnectionError):
             pass
         # Sleep a little and try again
-        time.sleep(5)
+        time.sleep(2)
         # print("Trying again")
     else:
         print("System unreachable.")

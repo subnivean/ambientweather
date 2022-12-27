@@ -40,8 +40,14 @@ def add_latest_data_to_db(devicenum, device, conn):
     lastdata = device.last_data
     dtypes = awdtypes.get_awdtypes(lastdata)
 
-    wsdata = {k: [v] for k, v in lastdata.items()}
-    wsdata.pop("lastRain")  # Don't care
+    # Don't allow any fields into the table that don't already
+    # exist - this came about because the newer weather station
+    # started adding battery data sometime around 2022-12-25 14:06Z,
+    # which screwed up the data insertion into the sqlite table. 
+    cur = conn.cursor()
+    pragma = cur.execute(f"PRAGMA table_info('dbtable{devicenum}')").fetchall()
+    dbfieldnames = [f[1] for f in pragma]
+    wsdata = {k: [v] for k, v in lastdata.items() if k in dbfieldnames}
 
     for dt in list(dtypes):
         if dt not in wsdata:
@@ -50,8 +56,6 @@ def add_latest_data_to_db(devicenum, device, conn):
     df = pd.DataFrame.from_dict(wsdata).astype(dtypes)
     df["date"] = pd.to_datetime(df["date"])
     dftstamp = df["dateutc"].values[0]
-
-    cur = conn.cursor()
 
     try:
         cur.execute(
@@ -71,6 +75,7 @@ def add_latest_data_to_db(devicenum, device, conn):
             # unit that didn't exist when the table was created!
             # Update: Looks like the solar panel was still
             # providing some power. I've killed it.
+            print("Couldn't do that!")
             pass
 
     cur.close()

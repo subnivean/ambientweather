@@ -2,7 +2,7 @@ import sys
 import sqlite3
 import pandas as pd
 
-columnmap = {
+COLUMNMAP0 = {
     "Date": "date",
     "Outdoor Temperature": "tempf",
     "Feels Like": "feelsLike",
@@ -38,7 +38,49 @@ columnmap = {
     "Refrigerator Dew Point": "dewPoint4",
 }
 
-dldf = pd.read_csv("/data/ambient-weather-20220225-20220226.csv")
+COLUMNMAP1 = {
+    "Date": "date",
+    "Simple Date": "simpledate",
+    "Outdoor Temperature (°F)": "tempf",
+    "Feels Like (°F)": "feelsLike",
+    "Dew Point (°F)": "dewPoint",
+    "Wind Speed (mph)": "windspeedmph",
+    "Wind Gust (mph)": "windgustmph",
+    "Max Daily Gust (mph)": "maxdailygust",
+    "Wind Direction (°)": "winddir",
+    "Hourly Rain (in/hr)": "hourlyrainin",
+    "Event Rain (in)": "eventrainin",
+    "Daily Rain (in)": "dailyrainin",
+    "Weekly Rain (in)": "weeklyrainin",
+    "Monthly Rain (in)": "monthlyrainin",
+    "Yearly Rain (in)": "yearlyrainin",
+    "Relative Pressure (inHg)": "baromrelin",
+    "Humidity (%)": "humidity",
+    "Ultra-Violet Radiation Index": "uv",
+    "Solar Radiation (W/m^2)": "solarradiation",
+    "Indoor Temperature (°F)": "tempinf",
+    "Indoor Humidity (%)": "humidityin",
+    "Absolute Pressure (inHg)": "baromabsin",
+    "Avg Wind Direction (10 mins) (°)": "winddir_avg10m",
+    "Avg Wind Speed (10 mins) (mph)": "windspdmph_avg10m",
+    "Indoor Feels Like (°F)": "feelsLikein",
+    "Indoor Dew Point (°F)": "dewPointin",
+    "Indoor Battery": "battin",
+    "Outdoor Battery": "batt",
+    "CO2 battery": "batt_co2",
+}
+
+awdumpfile, stationnum, dbfile = sys.argv[1:]
+
+if int(stationnum) == 0:
+    columnmap = COLUMNMAP0
+elif int(stationnum) == 1:
+    columnmap = COLUMNMAP1
+else:
+    print(f"Don't know station number {stationnum}!")
+    1 / 0
+
+dldf = pd.read_csv(f"/data/{awdumpfile}")
 dldf.rename(columns=columnmap, inplace=True)
 dldf["date"] = pd.to_datetime(dldf["date"]).dt.tz_convert("UTC")
 dldf["dateutc"] = (
@@ -46,13 +88,19 @@ dldf["dateutc"] = (
 ).dt.total_seconds() * 1000
 
 # Interpolate 1-minute values from the 5-minute values in the download
-dldf = dldf.resample("1min", on="date").mean().interpolate().reset_index()
+# Nope, forget it 2022-12-27
+# dldf = dldf.resample("1min", on="date").mean().interpolate().reset_index()
 dldf["tz"] = "America/New_York"
 
-awconn = sqlite3.connect("/data/ambientweather.sqlite")
-AWSQL = "select * from dbtable;"
+awconn = sqlite3.connect(f"/data/{dbfile}")
+AWSQL = f"select * from dbtable{stationnum};"
 awdf = pd.read_sql(AWSQL, awconn)
 awdf["date"] = pd.to_datetime(awdf["date"])
+
+origcols = list(awdf.columns)
+for colname in dldf.columns:
+    if colname not in origcols:
+        dldf.drop(colname, axis=1, inplace=True)
 
 # Filter the download data to only datetimes
 # we don't have in the database.
@@ -70,14 +118,14 @@ jdf = jdf.sort_values("date")
 
 # Clear out database table
 cur = awconn.cursor()
-cur.execute("DELETE FROM dbtable")
+cur.execute(f"DELETE FROM dbtable{stationnum}")
 rowsbefore = cur.rowcount
 awconn.commit()
 cur.close()
 
 # Write joined dataframe back to database table
 rowsafter = len(jdf)
-jdf.to_sql("dbtable", awconn, if_exists="append", index=False)
+jdf.to_sql(f"dbtable{stationnum}", awconn, if_exists="append", index=False)
 
 print(f"{rowsafter - rowsbefore} rows added.")
 

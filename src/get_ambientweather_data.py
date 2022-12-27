@@ -43,7 +43,7 @@ def add_latest_data_to_db(devicenum, device, conn):
     # Don't allow any fields into the table that don't already
     # exist - this came about because the newer weather station
     # started adding battery data sometime around 2022-12-25 14:06Z,
-    # which screwed up the data insertion into the sqlite table. 
+    # which screwed up the data insertion into the sqlite table.
     cur = conn.cursor()
     pragma = cur.execute(f"PRAGMA table_info('dbtable{devicenum}')").fetchall()
     dbfieldnames = [f[1] for f in pragma]

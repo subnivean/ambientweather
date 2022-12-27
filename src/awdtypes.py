@@ -10,15 +10,17 @@ def get_awdtypes(lastdata):
         Dictionary mapping AmbientWeather station properties to their data types.
     """
 
-    STRFIELDS = ('lastRain', 'tz', 'date')
+    STRFIELDS = ("lastRain", "tz", "date")
 
     dtypes = eval(
-        'dict(' +
-        ',\n'.join(
-            [f"{key}={'str' if key in STRFIELDS else 'float'}"
-             for key in lastdata.keys()]
-            )
-        + ')'
+        "dict("
+        + ",\n".join(
+            [
+                f"{key}={'str' if key in STRFIELDS else 'float'}"
+                for key in lastdata.keys()
+            ]
+        )
+        + ")"
     )
 
     return dtypes

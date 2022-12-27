@@ -7,8 +7,8 @@ awdf = pd.read_sql(AWSQL, awconn)
 
 print(awdf)
 
-tsconn = sqlite3.connect('../tesla_data/energy.sqlite')
-TSSQL = 'select DateTime,Home_kW,Home_kWh from energy_data;'
+tsconn = sqlite3.connect("../tesla_data/energy.sqlite")
+TSSQL = "select DateTime,Home_kW,Home_kWh from energy_data;"
 tsdf = pd.read_sql(TSSQL, tsconn)
 
 print(tsdf.tail())

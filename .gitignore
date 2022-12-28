@@ -2,3 +2,4 @@ awsecrets.py
 __pycache__
 .devcontainer/
 *.swp
+ipython/

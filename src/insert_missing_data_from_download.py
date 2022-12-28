@@ -70,6 +70,9 @@ COLUMNMAP1 = {
     "CO2 battery": "batt_co2",
 }
 
+
+# USAGE: like this in IPython (make db copy/backup first!):
+# run insert_missing_data_from_download ambient-weather-20221225-20221227.csv 1 foo.sqlite
 awdumpfile, stationnum, dbfile = sys.argv[1:]
 
 if int(stationnum) == 0:
@@ -88,8 +91,8 @@ dldf["dateutc"] = (
 ).dt.total_seconds() * 1000
 
 # Interpolate 1-minute values from the 5-minute values in the download
-# Nope, forget it 2022-12-27
-# dldf = dldf.resample("1min", on="date").mean().interpolate().reset_index()
+# so that e.g. 'average' works properly.
+dldf = dldf.resample("1min", on="date").mean().interpolate().reset_index()
 dldf["tz"] = "America/New_York"
 
 awconn = sqlite3.connect(f"/data/{dbfile}")
@@ -97,6 +100,13 @@ AWSQL = f"select * from dbtable{stationnum};"
 awdf = pd.read_sql(AWSQL, awconn)
 awdf["date"] = pd.to_datetime(awdf["date"])
 
+# Precision removal of 'bad' data
+# awdf = awdf[~((awdf.date > "2022-12-25 14:06") & (awdf.date < "2022-12-27 14:03"))]
+
+# Don't try to add in (new) columns from the dump
+# that don't exist in the sqlite table (like when the
+# battery columns were added to the new station data
+# on 2022-12-25).
 origcols = list(awdf.columns)
 for colname in dldf.columns:
     if colname not in origcols:
